@@ -29,6 +29,12 @@ use crate::math::*;
 use crate::pixel::*;
 use crate::serialize::{Deserialize, Serialize};
 
+extern {
+  fn rav1e_box_2x2_8bpc_avx2(
+    dst: *mut u8, s1: *const u8, s2: *const u8, len: usize,
+  );
+}
+
 /// Plane-specific configuration.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PlaneConfig {
@@ -487,6 +493,7 @@ impl<T: Pixel> Plane<T> {
   /// Returns plane with half the resolution for width and height.
   /// Downscaled with 2x2 box filter.
   /// Padded to dimensions with frame_width and frame_height.
+  #[hawktracer(downsampled)]
   pub fn downsampled(
     &self, frame_width: usize, frame_height: usize,
   ) -> Plane<T> {
@@ -522,17 +529,14 @@ impl<T: Pixel> Plane<T> {
         &data_origin[(src.cfg.stride * (row_idx * 2 + 1))..][..(2 * width)];
 
       let dst_row_len = dst_row.len();
-      for ((dst, a), b) in dst_row[..width.min(dst_row_len)]
-        .iter_mut()
-        .zip(src_top_row.chunks_exact(2))
-        .zip(src_bottom_row.chunks_exact(2))
-      {
-        let sum = u32::cast_from(a[0])
-          + u32::cast_from(a[1])
-          + u32::cast_from(b[0])
-          + u32::cast_from(b[1]);
-        let avg = (sum + 2) >> 2;
-        *dst = T::cast_from(avg);
+
+      unsafe {
+        rav1e_box_2x2_8bpc_avx2(
+          std::mem::transmute(dst_row.as_mut_ptr()),
+          std::mem::transmute(src_top_row.as_ptr()),
+          std::mem::transmute(src_bottom_row.as_ptr()),
+          dst_row_len,
+        );
       }
     }
     new.pad(frame_width, frame_height);
