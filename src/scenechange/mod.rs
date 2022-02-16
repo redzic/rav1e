@@ -87,7 +87,7 @@ impl<T: Pixel> SceneChangeDetector<T> {
       lookahead_distance,
       sequence,
     );
-    scd.threshold = threshold;
+    scd.threshold = threshold * (encoder_config.bit_depth as f64) / 8.0;
     scd
   }
 
