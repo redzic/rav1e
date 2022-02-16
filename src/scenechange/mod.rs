@@ -77,6 +77,20 @@ pub struct SceneChangeDetector<T: Pixel> {
 }
 
 impl<T: Pixel> SceneChangeDetector<T> {
+  pub fn with_threshold(
+    encoder_config: EncoderConfig, cpu_feature_level: CpuFeatureLevel,
+    lookahead_distance: usize, sequence: Arc<Sequence>, threshold: f64,
+  ) -> Self {
+    let mut scd = Self::new(
+      encoder_config,
+      cpu_feature_level,
+      lookahead_distance,
+      sequence,
+    );
+    scd.threshold = threshold;
+    scd
+  }
+
   pub fn new(
     encoder_config: EncoderConfig, cpu_feature_level: CpuFeatureLevel,
     lookahead_distance: usize, sequence: Arc<Sequence>,
