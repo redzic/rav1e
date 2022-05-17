@@ -100,9 +100,9 @@ pub struct PlaneOffset {
 #[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(not(feature = "serialize"), derive(Serialize, Deserialize))]
 pub struct PlaneData<T: Pixel> {
-  ptr: std::ptr::NonNull<T>,
-  _marker: PhantomData<T>,
-  len: usize,
+  pub ptr: std::ptr::NonNull<T>,
+  pub _marker: PhantomData<T>,
+  pub len: usize,
 }
 
 unsafe impl<T: Pixel + Send> Send for PlaneData<T> {}
@@ -145,10 +145,11 @@ impl<T: Pixel> std::ops::DerefMut for PlaneData<T> {
 
 impl<T: Pixel> std::ops::Drop for PlaneData<T> {
   fn drop(&mut self) {
+    // TODO add safe way of making plane from reference
     // SAFETY: we cannot dealloc too much because we know the length of the data
-    unsafe {
-      dealloc(self.ptr.as_ptr() as *mut u8, Self::layout(self.len));
-    }
+    // unsafe {
+    // dealloc(self.ptr.as_ptr() as *mut u8, Self::layout(self.len));
+    // }
   }
 }
 
