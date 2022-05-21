@@ -10,6 +10,8 @@ use crate::{
 };
 use v_frame::{math::Fixed, pixel::Pixel};
 
+use crate::prelude::Plane;
+
 use super::{SceneChangeDetector, ScenecutResult};
 
 impl<T: Pixel> SceneChangeDetector<T> {
@@ -49,6 +51,7 @@ impl<T: Pixel> SceneChangeDetector<T> {
 
         let intra_costs =
           self.intra_costs.entry(input_frameno).or_insert_with(|| {
+            // TODO make version of this that doens't return a vec
             estimate_intra_costs(
               temp_plane,
               &*frame2,
