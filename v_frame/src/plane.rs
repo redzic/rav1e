@@ -147,9 +147,9 @@ impl<T: Pixel> std::ops::Drop for PlaneData<T> {
   fn drop(&mut self) {
     // TODO add safe way of making plane from reference
     // SAFETY: we cannot dealloc too much because we know the length of the data
-    // unsafe {
-    // dealloc(self.ptr.as_ptr() as *mut u8, Self::layout(self.len));
-    // }
+    unsafe {
+      dealloc(self.ptr.as_ptr() as *mut u8, Self::layout(self.len));
+    }
   }
 }
 
