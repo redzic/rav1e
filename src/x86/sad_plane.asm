@@ -110,7 +110,6 @@ cglobal sad_plane_8bpc, 5, 9, 9, p1, p2, stride, width, rows, \
 .loop_row:
   test    widthq, widthq
   jz     .skip
-ALIGN function_align
 .loop:
   mova        m4,     [p1q + widthq + 0*mmsize]
   mova        m5,     [p1q + widthq + 1*mmsize]
