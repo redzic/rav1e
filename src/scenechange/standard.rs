@@ -10,8 +10,6 @@ use crate::{
 };
 use v_frame::{math::Fixed, pixel::Pixel};
 
-use crate::prelude::Plane;
-
 use super::{SceneChangeDetector, ScenecutResult};
 
 impl<T: Pixel> SceneChangeDetector<T> {

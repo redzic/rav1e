@@ -27,10 +27,13 @@ pub(crate) const IMP_BLOCK_AREA_IN_MV_UNITS: i64 =
   IMP_BLOCK_SIZE_IN_MV_UNITS * IMP_BLOCK_SIZE_IN_MV_UNITS;
 
 #[hawktracer(estimate_intra_costs)]
+// TODO: make const generic over bool, specifying whether to
+// return vec or f64
+// something like that anyway.
 pub(crate) fn estimate_intra_costs<T: Pixel>(
   temp_plane: &mut Plane<T>, frame: &Frame<T>, bit_depth: usize,
   cpu_feature_level: CpuFeatureLevel,
-) -> Box<[u32]> {
+) -> f64 {
   let plane = &frame.planes[0];
   let plane_after_prediction = temp_plane;
 
@@ -42,7 +45,7 @@ pub(crate) fn estimate_intra_costs<T: Pixel>(
 
   let h_in_imp_b = plane.cfg.height / IMPORTANCE_BLOCK_SIZE;
   let w_in_imp_b = plane.cfg.width / IMPORTANCE_BLOCK_SIZE;
-  let mut intra_costs = Vec::with_capacity(h_in_imp_b * w_in_imp_b);
+  let mut intra_costs = 0;
 
   for y in 0..h_in_imp_b {
     for x in 0..w_in_imp_b {
@@ -113,11 +116,15 @@ pub(crate) fn estimate_intra_costs<T: Pixel>(
         cpu_feature_level,
       );
 
-      intra_costs.push(intra_cost);
+      // intra_cost = intra_costs.iter().map(|&cost| cost as u64).sum::<u64>()
+      // as f64
+      // / intra_costs.len() as f64;
+
+      intra_costs += intra_cost as u64;
     }
   }
 
-  intra_costs.into_boxed_slice()
+  intra_costs as f64 / (h_in_imp_b * w_in_imp_b) as f64
 }
 
 #[hawktracer(estimate_importance_block_difference)]
