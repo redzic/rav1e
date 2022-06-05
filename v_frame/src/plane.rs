@@ -12,6 +12,7 @@ use rust_hawktracer::*;
 use std::marker::PhantomData;
 use std::mem;
 use std::ops::{Index, IndexMut, Range};
+use std::ptr::NonNull;
 use std::{
   alloc::{alloc, dealloc, Layout},
   u32,
@@ -100,9 +101,9 @@ pub struct PlaneOffset {
 #[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(not(feature = "serialize"), derive(Serialize, Deserialize))]
 pub struct PlaneData<T: Pixel> {
-  pub ptr: std::ptr::NonNull<T>,
-  pub _marker: PhantomData<T>,
-  pub len: usize,
+  ptr: NonNull<T>,
+  _marker: PhantomData<T>,
+  len: usize,
 }
 
 unsafe impl<T: Pixel + Send> Send for PlaneData<T> {}
@@ -204,10 +205,18 @@ impl<T: Pixel> PlaneData<T> {
   unsafe fn new_uninitialized(len: usize) -> Self {
     let ptr = {
       let ptr = alloc(Self::layout(len)) as *mut T;
-      std::ptr::NonNull::new_unchecked(ptr)
+      NonNull::new_unchecked(ptr)
     };
 
     PlaneData { ptr, len, _marker: PhantomData }
+  }
+
+  pub unsafe fn new_ref(data: &[T]) -> Self {
+    Self {
+      ptr: NonNull::from(data.get(0).unwrap_or(&T::cast_from(0))),
+      _marker: PhantomData,
+      len: data.len(),
+    }
   }
 
   pub fn new(len: usize) -> Self {
