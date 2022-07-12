@@ -213,7 +213,7 @@ impl<T: Pixel> PlaneData<T> {
 
   pub unsafe fn new_ref(data: &[T]) -> Self {
     Self {
-      ptr: NonNull::from(data.get(0).unwrap_or(&T::cast_from(0))),
+      ptr: NonNull::from(&*data.as_ptr().cast()),
       _marker: PhantomData,
       len: data.len(),
     }
