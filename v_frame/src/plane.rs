@@ -442,28 +442,34 @@ impl<T: Pixel> Plane<T> {
     assert!(stride != 0);
     assert!(source_stride != 0);
 
-    for (self_row, source_row) in self
-      .data_origin_mut()
-      .chunks_exact_mut(stride)
-      .zip(source.chunks_exact(source_stride))
-    {
-      match source_bytewidth {
-        1 => {
+    match source_bytewidth {
+      1 => {
+        for (self_row, source_row) in self
+          .data_origin_mut()
+          .chunks_exact_mut(stride)
+          .zip(source.chunks_exact(source_stride))
+        {
           for (self_pixel, source_pixel) in
             self_row.iter_mut().zip(source_row.iter())
           {
             *self_pixel = T::cast_from(*source_pixel);
           }
         }
-        2 => {
-          assert!(
-            mem::size_of::<T>() == 2,
-            "source bytewidth ({}) cannot fit in Plane<u8>",
-            source_bytewidth
-          );
+      }
+      2 => {
+        assert!(
+          mem::size_of::<T>() == 2,
+          "source bytewidth ({}) cannot fit in Plane<u8>",
+          source_bytewidth
+        );
 
-          debug_assert!(T::type_enum() == PixelType::U16);
+        debug_assert!(T::type_enum() == PixelType::U16);
 
+        for (self_row, source_row) in self
+          .data_origin_mut()
+          .chunks_exact_mut(stride)
+          .zip(source.chunks_exact(source_stride))
+        {
           // SAFETY: because of the assert it is safe to assume that T == u16
           let self_row: &mut [u16] = unsafe { std::mem::transmute(self_row) };
           // SAFETY: we reinterpret the slice of bytes as a slice of elements of
@@ -479,9 +485,8 @@ impl<T: Pixel> Plane<T> {
             *self_pixel = u16::from_le_bytes(*bytes);
           }
         }
-
-        _ => {}
       }
+      _ => {}
     }
   }
 
