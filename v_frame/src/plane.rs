@@ -504,6 +504,8 @@ impl<T: Pixel> Plane<T> {
       .chunks_exact(stride)
       .zip(dest.chunks_exact_mut(dest_stride))
     {
+      // TODO make this part into an outer loop as well
+      // and add asserts as well for stride != 0
       match dest_bytewidth {
         1 => {
           for (self_pixel, dest_pixel) in
