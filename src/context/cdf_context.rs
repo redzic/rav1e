@@ -276,132 +276,108 @@ impl CDFContext {
   pub fn build_map(&self) -> Vec<(&'static str, usize, usize)> {
     use std::mem::size_of_val;
 
-    let partition_w8_cdf_start =
-      self.partition_w8_cdf.first().unwrap().as_ptr() as usize;
+    let partition_w8_cdf_start = self.partition_w8_cdf.as_ptr() as usize;
     let partition_w8_cdf_end =
       partition_w8_cdf_start + size_of_val(&self.partition_w8_cdf);
-    let partition_w128_cdf_start =
-      self.partition_w128_cdf.first().unwrap().as_ptr() as usize;
+    let partition_w128_cdf_start = self.partition_w128_cdf.as_ptr() as usize;
     let partition_w128_cdf_end =
       partition_w128_cdf_start + size_of_val(&self.partition_w128_cdf);
-    let partition_cdf_start =
-      self.partition_cdf.first().unwrap().as_ptr() as usize;
+    let partition_cdf_start = self.partition_cdf.as_ptr() as usize;
     let partition_cdf_end =
       partition_cdf_start + size_of_val(&self.partition_cdf);
-    let kf_y_cdf_start = self.kf_y_cdf.first().unwrap().as_ptr() as usize;
+    let kf_y_cdf_start = self.kf_y_cdf.as_ptr() as usize;
     let kf_y_cdf_end = kf_y_cdf_start + size_of_val(&self.kf_y_cdf);
-    let y_mode_cdf_start = self.y_mode_cdf.first().unwrap().as_ptr() as usize;
+    let y_mode_cdf_start = self.y_mode_cdf.as_ptr() as usize;
     let y_mode_cdf_end = y_mode_cdf_start + size_of_val(&self.y_mode_cdf);
-    let uv_mode_cdf_start =
-      self.uv_mode_cdf.first().unwrap().as_ptr() as usize;
+    let uv_mode_cdf_start = self.uv_mode_cdf.as_ptr() as usize;
     let uv_mode_cdf_end = uv_mode_cdf_start + size_of_val(&self.uv_mode_cdf);
-    let uv_mode_cfl_cdf_start =
-      self.uv_mode_cfl_cdf.first().unwrap().as_ptr() as usize;
+    let uv_mode_cfl_cdf_start = self.uv_mode_cfl_cdf.as_ptr() as usize;
     let uv_mode_cfl_cdf_end =
       uv_mode_cfl_cdf_start + size_of_val(&self.uv_mode_cfl_cdf);
     let cfl_sign_cdf_start = self.cfl_sign_cdf.as_ptr() as usize;
     let cfl_sign_cdf_end =
       cfl_sign_cdf_start + size_of_val(&self.cfl_sign_cdf);
-    let cfl_alpha_cdf_start =
-      self.cfl_alpha_cdf.first().unwrap().as_ptr() as usize;
+    let cfl_alpha_cdf_start = self.cfl_alpha_cdf.as_ptr() as usize;
     let cfl_alpha_cdf_end =
       cfl_alpha_cdf_start + size_of_val(&self.cfl_alpha_cdf);
-    let newmv_cdf_start = self.newmv_cdf.first().unwrap().as_ptr() as usize;
+    let newmv_cdf_start = self.newmv_cdf.as_ptr() as usize;
     let newmv_cdf_end = newmv_cdf_start + size_of_val(&self.newmv_cdf);
-    let zeromv_cdf_start = self.zeromv_cdf.first().unwrap().as_ptr() as usize;
+    let zeromv_cdf_start = self.zeromv_cdf.as_ptr() as usize;
     let zeromv_cdf_end = zeromv_cdf_start + size_of_val(&self.zeromv_cdf);
-    let refmv_cdf_start = self.refmv_cdf.first().unwrap().as_ptr() as usize;
+    let refmv_cdf_start = self.refmv_cdf.as_ptr() as usize;
     let refmv_cdf_end = refmv_cdf_start + size_of_val(&self.refmv_cdf);
-    let intra_tx_2_cdf_start =
-      self.intra_tx_2_cdf.first().unwrap().as_ptr() as usize;
+    let intra_tx_2_cdf_start = self.intra_tx_2_cdf.as_ptr() as usize;
     let intra_tx_2_cdf_end =
       intra_tx_2_cdf_start + size_of_val(&self.intra_tx_2_cdf);
-    let intra_tx_1_cdf_start =
-      self.intra_tx_1_cdf.first().unwrap().as_ptr() as usize;
+    let intra_tx_1_cdf_start = self.intra_tx_1_cdf.as_ptr() as usize;
     let intra_tx_1_cdf_end =
       intra_tx_1_cdf_start + size_of_val(&self.intra_tx_1_cdf);
-    let inter_tx_3_cdf_start =
-      self.inter_tx_3_cdf.first().unwrap().as_ptr() as usize;
+    let inter_tx_3_cdf_start = self.inter_tx_3_cdf.as_ptr() as usize;
     let inter_tx_3_cdf_end =
       inter_tx_3_cdf_start + size_of_val(&self.inter_tx_3_cdf);
-    let inter_tx_2_cdf_start =
-      self.inter_tx_2_cdf.first().unwrap().as_ptr() as usize;
+    let inter_tx_2_cdf_start = self.inter_tx_2_cdf.as_ptr() as usize;
     let inter_tx_2_cdf_end =
       inter_tx_2_cdf_start + size_of_val(&self.inter_tx_2_cdf);
-    let inter_tx_1_cdf_start =
-      self.inter_tx_1_cdf.first().unwrap().as_ptr() as usize;
+    let inter_tx_1_cdf_start = self.inter_tx_1_cdf.as_ptr() as usize;
     let inter_tx_1_cdf_end =
       inter_tx_1_cdf_start + size_of_val(&self.inter_tx_1_cdf);
-    let tx_size_8x8_cdf_start =
-      self.tx_size_8x8_cdf.first().unwrap().as_ptr() as usize;
+    let tx_size_8x8_cdf_start = self.tx_size_8x8_cdf.as_ptr() as usize;
     let tx_size_8x8_cdf_end =
       tx_size_8x8_cdf_start + size_of_val(&self.tx_size_8x8_cdf);
-    let tx_size_cdf_start =
-      self.tx_size_cdf.first().unwrap().as_ptr() as usize;
+    let tx_size_cdf_start = self.tx_size_cdf.as_ptr() as usize;
     let tx_size_cdf_end = tx_size_cdf_start + size_of_val(&self.tx_size_cdf);
-    let txfm_partition_cdf_start =
-      self.txfm_partition_cdf.first().unwrap().as_ptr() as usize;
+    let txfm_partition_cdf_start = self.txfm_partition_cdf.as_ptr() as usize;
     let txfm_partition_cdf_end =
       txfm_partition_cdf_start + size_of_val(&self.txfm_partition_cdf);
-    let skip_cdfs_start = self.skip_cdfs.first().unwrap().as_ptr() as usize;
+    let skip_cdfs_start = self.skip_cdfs.as_ptr() as usize;
     let skip_cdfs_end = skip_cdfs_start + size_of_val(&self.skip_cdfs);
-    let intra_inter_cdfs_start =
-      self.intra_inter_cdfs.first().unwrap().as_ptr() as usize;
+    let intra_inter_cdfs_start = self.intra_inter_cdfs.as_ptr() as usize;
     let intra_inter_cdfs_end =
       intra_inter_cdfs_start + size_of_val(&self.intra_inter_cdfs);
-    let angle_delta_cdf_start =
-      self.angle_delta_cdf.first().unwrap().as_ptr() as usize;
+    let angle_delta_cdf_start = self.angle_delta_cdf.as_ptr() as usize;
     let angle_delta_cdf_end =
       angle_delta_cdf_start + size_of_val(&self.angle_delta_cdf);
-    let filter_intra_cdfs_start =
-      self.filter_intra_cdfs.first().unwrap().as_ptr() as usize;
+    let filter_intra_cdfs_start = self.filter_intra_cdfs.as_ptr() as usize;
     let filter_intra_cdfs_end =
       filter_intra_cdfs_start + size_of_val(&self.filter_intra_cdfs);
-    let palette_y_mode_cdfs_start =
-      self.palette_y_mode_cdfs.first().unwrap().as_ptr() as usize;
+    let palette_y_mode_cdfs_start = self.palette_y_mode_cdfs.as_ptr() as usize;
     let palette_y_mode_cdfs_end =
       palette_y_mode_cdfs_start + size_of_val(&self.palette_y_mode_cdfs);
     let palette_uv_mode_cdfs_start =
-      self.palette_uv_mode_cdfs.first().unwrap().as_ptr() as usize;
+      self.palette_uv_mode_cdfs.as_ptr() as usize;
     let palette_uv_mode_cdfs_end =
       palette_uv_mode_cdfs_start + size_of_val(&self.palette_uv_mode_cdfs);
-    let comp_mode_cdf_start =
-      self.comp_mode_cdf.first().unwrap().as_ptr() as usize;
+    let comp_mode_cdf_start = self.comp_mode_cdf.as_ptr() as usize;
     let comp_mode_cdf_end =
       comp_mode_cdf_start + size_of_val(&self.comp_mode_cdf);
-    let comp_ref_type_cdf_start =
-      self.comp_ref_type_cdf.first().unwrap().as_ptr() as usize;
+    let comp_ref_type_cdf_start = self.comp_ref_type_cdf.as_ptr() as usize;
     let comp_ref_type_cdf_end =
       comp_ref_type_cdf_start + size_of_val(&self.comp_ref_type_cdf);
-    let comp_ref_cdf_start =
-      self.comp_ref_cdf.first().unwrap().as_ptr() as usize;
+    let comp_ref_cdf_start = self.comp_ref_cdf.as_ptr() as usize;
     let comp_ref_cdf_end =
       comp_ref_cdf_start + size_of_val(&self.comp_ref_cdf);
-    let comp_bwd_ref_cdf_start =
-      self.comp_bwd_ref_cdf.first().unwrap().as_ptr() as usize;
+    let comp_bwd_ref_cdf_start = self.comp_bwd_ref_cdf.as_ptr() as usize;
     let comp_bwd_ref_cdf_end =
       comp_bwd_ref_cdf_start + size_of_val(&self.comp_bwd_ref_cdf);
-    let single_ref_cdfs_start =
-      self.single_ref_cdfs.first().unwrap().as_ptr() as usize;
+    let single_ref_cdfs_start = self.single_ref_cdfs.as_ptr() as usize;
     let single_ref_cdfs_end =
       single_ref_cdfs_start + size_of_val(&self.single_ref_cdfs);
-    let drl_cdfs_start = self.drl_cdfs.first().unwrap().as_ptr() as usize;
+    let drl_cdfs_start = self.drl_cdfs.as_ptr() as usize;
     let drl_cdfs_end = drl_cdfs_start + size_of_val(&self.drl_cdfs);
-    let compound_mode_cdf_start =
-      self.compound_mode_cdf.first().unwrap().as_ptr() as usize;
+    let compound_mode_cdf_start = self.compound_mode_cdf.as_ptr() as usize;
     let compound_mode_cdf_end =
       compound_mode_cdf_start + size_of_val(&self.compound_mode_cdf);
     let nmv_context_start = &self.nmv_context as *const NMVContext as usize;
     let nmv_context_end = nmv_context_start + size_of_val(&self.nmv_context);
     let deblock_delta_multi_cdf_start =
-      self.deblock_delta_multi_cdf.first().unwrap().as_ptr() as usize;
+      self.deblock_delta_multi_cdf.as_ptr() as usize;
     let deblock_delta_multi_cdf_end = deblock_delta_multi_cdf_start
       + size_of_val(&self.deblock_delta_multi_cdf);
     let deblock_delta_cdf_start = self.deblock_delta_cdf.as_ptr() as usize;
     let deblock_delta_cdf_end =
       deblock_delta_cdf_start + size_of_val(&self.deblock_delta_cdf);
     let spatial_segmentation_cdfs_start =
-      self.spatial_segmentation_cdfs.first().unwrap().as_ptr() as usize;
+      self.spatial_segmentation_cdfs.as_ptr() as usize;
     let spatial_segmentation_cdfs_end = spatial_segmentation_cdfs_start
       + size_of_val(&self.spatial_segmentation_cdfs);
     let lrf_switchable_cdf_start = self.lrf_switchable_cdf.as_ptr() as usize;
@@ -414,55 +390,42 @@ impl CDFContext {
     let lrf_wiener_cdf_end =
       lrf_wiener_cdf_start + size_of_val(&self.lrf_wiener_cdf);
 
-    let txb_skip_cdf_start =
-      self.txb_skip_cdf.first().unwrap().as_ptr() as usize;
+    let txb_skip_cdf_start = self.txb_skip_cdf.as_ptr() as usize;
     let txb_skip_cdf_end =
       txb_skip_cdf_start + size_of_val(&self.txb_skip_cdf);
-    let dc_sign_cdf_start =
-      self.dc_sign_cdf.first().unwrap().as_ptr() as usize;
+    let dc_sign_cdf_start = self.dc_sign_cdf.as_ptr() as usize;
     let dc_sign_cdf_end = dc_sign_cdf_start + size_of_val(&self.dc_sign_cdf);
-    let eob_extra_cdf_start =
-      self.eob_extra_cdf.first().unwrap().as_ptr() as usize;
+    let eob_extra_cdf_start = self.eob_extra_cdf.as_ptr() as usize;
     let eob_extra_cdf_end =
       eob_extra_cdf_start + size_of_val(&self.eob_extra_cdf);
-    let eob_flag_cdf16_start =
-      self.eob_flag_cdf16.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf16_start = self.eob_flag_cdf16.as_ptr() as usize;
     let eob_flag_cdf16_end =
       eob_flag_cdf16_start + size_of_val(&self.eob_flag_cdf16);
-    let eob_flag_cdf32_start =
-      self.eob_flag_cdf32.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf32_start = self.eob_flag_cdf32.as_ptr() as usize;
     let eob_flag_cdf32_end =
       eob_flag_cdf32_start + size_of_val(&self.eob_flag_cdf32);
-    let eob_flag_cdf64_start =
-      self.eob_flag_cdf64.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf64_start = self.eob_flag_cdf64.as_ptr() as usize;
     let eob_flag_cdf64_end =
       eob_flag_cdf64_start + size_of_val(&self.eob_flag_cdf64);
-    let eob_flag_cdf128_start =
-      self.eob_flag_cdf128.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf128_start = self.eob_flag_cdf128.as_ptr() as usize;
     let eob_flag_cdf128_end =
       eob_flag_cdf128_start + size_of_val(&self.eob_flag_cdf128);
-    let eob_flag_cdf256_start =
-      self.eob_flag_cdf256.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf256_start = self.eob_flag_cdf256.as_ptr() as usize;
     let eob_flag_cdf256_end =
       eob_flag_cdf256_start + size_of_val(&self.eob_flag_cdf256);
-    let eob_flag_cdf512_start =
-      self.eob_flag_cdf512.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf512_start = self.eob_flag_cdf512.as_ptr() as usize;
     let eob_flag_cdf512_end =
       eob_flag_cdf512_start + size_of_val(&self.eob_flag_cdf512);
-    let eob_flag_cdf1024_start =
-      self.eob_flag_cdf1024.first().unwrap().as_ptr() as usize;
+    let eob_flag_cdf1024_start = self.eob_flag_cdf1024.as_ptr() as usize;
     let eob_flag_cdf1024_end =
       eob_flag_cdf1024_start + size_of_val(&self.eob_flag_cdf1024);
-    let coeff_base_eob_cdf_start =
-      self.coeff_base_eob_cdf.first().unwrap().as_ptr() as usize;
+    let coeff_base_eob_cdf_start = self.coeff_base_eob_cdf.as_ptr() as usize;
     let coeff_base_eob_cdf_end =
       coeff_base_eob_cdf_start + size_of_val(&self.coeff_base_eob_cdf);
-    let coeff_base_cdf_start =
-      self.coeff_base_cdf.first().unwrap().as_ptr() as usize;
+    let coeff_base_cdf_start = self.coeff_base_cdf.as_ptr() as usize;
     let coeff_base_cdf_end =
       coeff_base_cdf_start + size_of_val(&self.coeff_base_cdf);
-    let coeff_br_cdf_start =
-      self.coeff_br_cdf.first().unwrap().as_ptr() as usize;
+    let coeff_br_cdf_start = self.coeff_br_cdf.as_ptr() as usize;
     let coeff_br_cdf_end =
       coeff_br_cdf_start + size_of_val(&self.coeff_br_cdf);
 

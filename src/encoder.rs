@@ -2713,7 +2713,7 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
   if can_split {
     debug_assert!(is_square);
 
-    let mut partition_types = ArrayVec::<PartitionType, 3>::new();
+    let mut partition_types = ArrayVec::<PartitionType, 5>::new();
     if bsize
       <= fi.config.speed_settings.partition.non_square_partition_max_threshold
       || is_straddle_x
@@ -2721,9 +2721,15 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
     {
       if has_cols {
         partition_types.push(PartitionType::PARTITION_HORZ);
+        // if bsize >= BlockSize::BLOCK_16X16 {
+        //   partition_types.push(PartitionType::PARTITION_HORZ_4);
+        // }
       }
       if !(fi.sequence.chroma_sampling == ChromaSampling::Cs422) && has_rows {
         partition_types.push(PartitionType::PARTITION_VERT);
+        // if bsize >= BlockSize::BLOCK_16X16 {
+        //   partition_types.push(PartitionType::PARTITION_VERT_4);
+        // }
       }
     }
     partition_types.push(PartitionType::PARTITION_SPLIT);
