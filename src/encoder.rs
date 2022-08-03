@@ -3832,16 +3832,3 @@ pub fn update_rec_buffer<T: Pixel>(
     }
   }
 }
-
-#[cfg(test)]
-mod test {
-  use super::*;
-
-  #[test]
-  fn check_partition_types_order() {
-    assert_eq!(
-      RAV1E_PARTITION_TYPES[RAV1E_PARTITION_TYPES.len() - 1],
-      PartitionType::PARTITION_SPLIT
-    );
-  }
-}
