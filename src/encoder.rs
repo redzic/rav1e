@@ -2631,7 +2631,7 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
   }
 
   let is_square = bsize.is_sqr();
-  let hbs = bsize.width_mi() >> 1;
+  let hbs = bsize.width_mi() / 2;
   let has_cols = tile_bo.0.x + hbs < ts.mi_width;
   let has_rows = tile_bo.0.y + hbs < ts.mi_height;
   let is_straddle_x = tile_bo.0.x + bsize.width_mi() > ts.mi_width;

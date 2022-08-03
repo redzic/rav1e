@@ -310,7 +310,7 @@ impl<'a> ContextWriter<'a> {
 
   /// # Panics
   ///
-  /// - If called with an 8x8 or larger `bsize`
+  /// - If called with < 8x8 or non square `bsize`
   /// - If called with a `PartitionType` incompatible with the current block.
   pub fn write_partition(
     &mut self, w: &mut impl Writer, bo: TileBlockOffset, p: PartitionType,
