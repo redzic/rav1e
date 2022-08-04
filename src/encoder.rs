@@ -2618,8 +2618,8 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
   inter_cfg: &InterConfig, enc_stats: &mut EncoderStats,
 ) -> PartitionGroupParameters {
   let rdo_type = RDOType::PixelDistRealRate;
-  let mut rd_cost = std::f64::MAX;
-  let mut best_rd = std::f64::MAX;
+  let mut rd_cost = f64::MAX;
+  let mut best_rd = f64::MAX;
   let mut rdo_output = PartitionGroupParameters {
     rd_cost,
     part_type: PartitionType::PARTITION_INVALID,
@@ -2651,6 +2651,10 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
     } else {
       (bsize > fi.partition_range.min && is_square) || must_split
     };
+
+  if bsize.is_hv_4_partition() || bsize.is_hv_partition() {
+    assert!(!can_split && !must_split);
+  }
 
   assert!(bsize >= BlockSize::BLOCK_8X8 || !can_split);
 
@@ -2711,7 +2715,8 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
 
   // Test all partition types other than PARTITION_NONE by comparing their RD costs
   if can_split {
-    debug_assert!(is_square);
+    assert!(is_square);
+    assert!(!bsize.is_hv_4_partition());
 
     let mut partition_types = ArrayVec::<PartitionType, 5>::new();
     if bsize
@@ -2721,15 +2726,15 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
     {
       if has_cols {
         partition_types.push(PartitionType::PARTITION_HORZ);
-        // if bsize >= BlockSize::BLOCK_16X16 {
-        //   partition_types.push(PartitionType::PARTITION_HORZ_4);
-        // }
+        if bsize >= BlockSize::BLOCK_16X16 {
+          partition_types.push(PartitionType::PARTITION_HORZ_4);
+        }
       }
-      if !(fi.sequence.chroma_sampling == ChromaSampling::Cs422) && has_rows {
+      if fi.sequence.chroma_sampling != ChromaSampling::Cs422 && has_rows {
         partition_types.push(PartitionType::PARTITION_VERT);
-        // if bsize >= BlockSize::BLOCK_16X16 {
-        //   partition_types.push(PartitionType::PARTITION_VERT_4);
-        // }
+        if bsize >= BlockSize::BLOCK_16X16 {
+          partition_types.push(PartitionType::PARTITION_VERT_4);
+        }
       }
     }
     partition_types.push(PartitionType::PARTITION_SPLIT);
@@ -2755,8 +2760,10 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
       w_post_cdef.rollback(&w_post_checkpoint);
 
       let subsize = bsize.subsize(partition).unwrap();
-      let hbsw = subsize.width_mi(); // Half the block size width in blocks
-      let hbsh = subsize.height_mi(); // Half the block size height in blocks
+      // width() gives actual width in pixels
+      // mode info block is 4 pixels wide
+      let hbsw = subsize.width_mi(); // sub-partition block size width in blocks
+      let hbsh = subsize.height_mi(); // sub-partition block size height in blocks
       let mut child_modes = ArrayVec::<PartitionParameters, 4>::new();
       rd_cost = 0.0;
 
@@ -2769,27 +2776,18 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
           compute_rd_cost(fi, w.tell_frac() - tell, ScaledDistortion::zero());
       }
 
-      let four_partitions = [
-        tile_bo,
-        TileBlockOffset(BlockOffset {
-          x: tile_bo.0.x + hbsw as usize,
-          y: tile_bo.0.y,
-        }),
-        TileBlockOffset(BlockOffset {
-          x: tile_bo.0.x,
-          y: tile_bo.0.y + hbsh as usize,
-        }),
-        TileBlockOffset(BlockOffset {
-          x: tile_bo.0.x + hbsw as usize,
-          y: tile_bo.0.y + hbsh as usize,
-        }),
-      ];
-      let partitions = get_sub_partitions(&four_partitions, partition);
+      let partitions =
+        better_get_sub_partitions(tile_bo, hbsw, hbsh, partition);
 
       early_exit = false;
       // If either of horz or vert partition types is being tested,
       // two partitioned rectangles, defined in 'partitions', of the current block
       // is passed to encode_partition_bottomup()
+
+      if bsize.is_hv_4_partition() {
+        assert!(partitions.len() == 4);
+      }
+
       for offset in partitions {
         if offset.0.x >= ts.mi_width || offset.0.y >= ts.mi_height {
           continue;
@@ -2809,16 +2807,16 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
         let cost = child_rdo_output.rd_cost;
         assert!(cost >= 0.0);
 
-        if cost != std::f64::MAX {
+        if cost != f64::MAX {
           rd_cost += cost;
           if !must_split
             && fi.enable_early_exit
             && (rd_cost >= best_rd || rd_cost >= ref_rd_cost)
           {
-            assert!(cost != std::f64::MAX);
             early_exit = true;
             break;
           } else if partition != PartitionType::PARTITION_SPLIT {
+            assert!(child_rdo_output.part_modes.len() == 1);
             child_modes.push(child_rdo_output.part_modes[0].clone());
           }
         }
@@ -2853,6 +2851,11 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
           if cw.bc.cdef_coded { w_post_cdef } else { w_pre_cdef };
         cw.write_partition(w, tile_bo, best_partition, bsize);
       }
+
+      if bsize.is_hv_4_partition() {
+        assert!(rdo_output.part_modes.len() == 4);
+      }
+
       for mode in rdo_output.part_modes.clone() {
         assert!(subsize == mode.bsize);
 
@@ -2882,6 +2885,9 @@ fn encode_partition_bottomup<T: Pixel, W: Writer>(
       }
     }
   } // if can_split {
+    // } else {
+    //   dbg!(bsize);
+    // }
 
   assert!(best_partition != PartitionType::PARTITION_INVALID);
 
@@ -2940,7 +2946,7 @@ fn encode_partition_topdown<T: Pixel, W: Writer>(
   let mut rdo_output =
     block_output.clone().unwrap_or(PartitionGroupParameters {
       part_type: PartitionType::PARTITION_INVALID,
-      rd_cost: std::f64::MAX,
+      rd_cost: f64::MAX,
       part_modes: ArrayVec::new(),
     });
   let partition: PartitionType;
@@ -3517,7 +3523,7 @@ fn encode_tile<'a, T: Pixel>(
           &mut sbs_qe.w_post_cdef,
           BlockSize::BLOCK_64X64,
           tile_bo,
-          std::f64::MAX,
+          f64::MAX,
           inter_cfg,
           &mut enc_stats,
         );

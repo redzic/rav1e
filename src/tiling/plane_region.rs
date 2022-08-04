@@ -149,7 +149,8 @@ macro_rules! plane_region_common {
       /// - If the configured dimensions are invalid
       // FIXME: Remove `allow` once https://github.com/rust-lang/rust-clippy/issues/8264 fixed
       #[allow(clippy::undocumented_unsafe_blocks)]
-      #[inline(always)]
+      // #[inline(always)]
+      #[track_caller]
       pub fn from_slice(data: &'a $($opt_mut)? [T], cfg: &'a PlaneConfig, rect:
         Rect) -> Self {
         if cfg.width == 0 || cfg.height == 0 {
@@ -260,7 +261,8 @@ macro_rules! plane_region_common {
       /// let subregion = region.subregion(Area::BlockRect { bo, width: 64, height: 64 });
       /// # }
       /// ```
-      #[inline(always)]
+      // #[inline(always)]
+      #[track_caller]
       pub fn subregion(&self, area: Area) -> PlaneRegion<'_, T> {
         if self.data.is_null() {
           PlaneRegion {
@@ -276,8 +278,16 @@ macro_rules! plane_region_common {
             self.rect.width,
             self.rect.height,
           );
-          assert!(rect.x >= 0 && rect.x as usize <= self.rect.width);
-          assert!(rect.y >= 0 && rect.y as usize <= self.rect.height);
+
+          if !(rect.x >= 0 && rect.x as usize <= self.rect.width) {
+            panic!("{} {}", rect.x, self.rect.width);
+          }
+          if !(rect.y >= 0 && rect.y as usize <= self.rect.height) {
+            panic!("{} {}", rect.y, self.rect.height);
+          }
+
+          // assert!(rect.x >= 0 && rect.x as usize <= self.rect.width);
+          // assert!(rect.y >= 0 && rect.y as usize <= self.rect.height);
           // SAFETY: The above asserts ensure we do not go outside the original rectangle.
           //
           // FIXME: Remove `allow` once https://github.com/rust-lang/rust-clippy/issues/8264 fixed
@@ -454,7 +464,8 @@ impl<'a, T: Pixel> PlaneRegionMut<'a, T> {
   /// let subregion = region.subregion_mut(Area::BlockStartingAt { bo });
   /// # }
   /// ```
-  #[inline(always)]
+  // #[inline(always)]
+  #[track_caller]
   pub fn subregion_mut(&mut self, area: Area) -> PlaneRegionMut<'_, T> {
     let rect = area.to_rect(
       self.plane_cfg.xdec,
@@ -462,8 +473,17 @@ impl<'a, T: Pixel> PlaneRegionMut<'a, T> {
       self.rect.width,
       self.rect.height,
     );
-    assert!(rect.x >= 0 && rect.x as usize <= self.rect.width);
-    assert!(rect.y >= 0 && rect.y as usize <= self.rect.height);
+
+    if !(rect.x >= 0 && rect.x as usize <= self.rect.width) {
+      panic!("{} {}", rect.x, self.rect.width);
+    }
+    if !(rect.y >= 0 && rect.y as usize <= self.rect.height) {
+      panic!("{} {}", rect.y, self.rect.height);
+    }
+
+    // assertion is failing here...
+    // assert!(rect.x >= 0 && rect.x as usize <= self.rect.width);
+    // assert!(rect.y >= 0 && rect.y as usize <= self.rect.height);
     // SAFETY: The above asserts ensure we do not go outside the original rectangle.
     let data = unsafe {
       self.data.add(rect.y as usize * self.plane_cfg.stride + rect.x as usize)

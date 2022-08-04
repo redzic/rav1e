@@ -1764,6 +1764,93 @@ pub fn rdo_tx_type_decision<T: Pixel>(
   (best_type, best_rd)
 }
 
+pub fn better_get_sub_partitions(
+  // so tile_bo is an offset in units of mode info blocks,
+  // i.e. 4x4 pixel blocks
+  tile_bo: TileBlockOffset,
+  // sub-partition width and height
+  w: usize,
+  h: usize,
+  partition: PartitionType,
+) -> ArrayVec<TileBlockOffset, 4> {
+  let mut partition_offsets = ArrayVec::<TileBlockOffset, 4>::new();
+
+  // always get the upper-left tile block offset
+  partition_offsets.push(tile_bo);
+
+  // TODO don't pass w/h, just pass the block size
+  // so we can get the w/h as needed only
+
+  // for example PARTITION_VERT{_4} doesn't need
+  // size of height of sub-partition to create
+  // the offsets
+
+  match partition {
+    PARTITION_VERT => {
+      // TODO make helper method/closure for this
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + w as usize,
+        y: tile_bo.0.y,
+      }));
+      return partition_offsets;
+    }
+    PARTITION_HORZ => {
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x,
+        y: tile_bo.0.y + h as usize,
+      }));
+      return partition_offsets;
+    }
+    PARTITION_VERT_4 => {
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + w as usize,
+        y: tile_bo.0.y,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + 2 * w as usize,
+        y: tile_bo.0.y,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + 3 * w as usize,
+        y: tile_bo.0.y,
+      }));
+      return partition_offsets;
+    }
+    PARTITION_HORZ_4 => {
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x,
+        y: tile_bo.0.y + h as usize,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x,
+        y: tile_bo.0.y + 2 * h as usize,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x,
+        y: tile_bo.0.y + 3 * h as usize,
+      }));
+      return partition_offsets;
+    }
+    PARTITION_SPLIT => {
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + w as usize,
+        y: tile_bo.0.y,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x,
+        y: tile_bo.0.y + h as usize,
+      }));
+      partition_offsets.push(TileBlockOffset(BlockOffset {
+        x: tile_bo.0.x + w as usize,
+        y: tile_bo.0.y + h as usize,
+      }));
+    }
+    _ => unreachable!(),
+  }
+
+  partition_offsets
+}
+
 pub fn get_sub_partitions(
   four_partitions: &[TileBlockOffset; 4], partition: PartitionType,
 ) -> ArrayVec<TileBlockOffset, 4> {

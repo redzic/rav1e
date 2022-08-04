@@ -187,6 +187,20 @@ impl BlockSize {
   pub const BLOCK_SIZES_ALL: usize = 22;
   pub const BLOCK_SIZES: usize = BlockSize::BLOCK_SIZES_ALL - 6; // BLOCK_SIZES_ALL minus 4:1 non-squares, six of them
 
+  pub fn is_hv_4_partition(self) -> bool {
+    let w = self.width();
+    let h = self.height();
+
+    (w == 4 * h) || (h == 4 * w)
+  }
+
+  pub fn is_hv_partition(self) -> bool {
+    let w = self.width();
+    let h = self.height();
+
+    (w == 2 * h) || (h == 2 * w)
+  }
+
   #[inline]
   /// # Errors
   ///

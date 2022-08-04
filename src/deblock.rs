@@ -1276,8 +1276,11 @@ fn sse_h_edge<T: Pixel>(
       deblock_size(block, prev_block, rec_plane, pli, true, block_edge);
     if filter_size > 0 {
       let po = bo.plane_offset(rec_plane.plane_cfg); // rec and src have identical subsampling
+
+      // I guess panic with --tiles 4 is happening here
       let rec_region = rec_plane.subregion(Area::Rect {
         x: po.x,
+        // 4-7=-3
         y: po.y - (filter_size >> 1) as isize,
         width: 4,
         height: filter_size,
